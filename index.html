@@ -634,7 +634,7 @@ function updateDistances(userLat, userLng){
     if(tag){
       tag.textContent = unlockedStops.has(stop.id)
         ? '✓ Unlocked'
-        : (dist < 1000 ? Math.round(dist) + 'meters away' : (dist/1000).toFixed(1) + 'kilometers away');
+        : (dist < 1000 ? Math.round(dist) + ' meters away' : (dist/1000).toFixed(1) + ' kilometers away');
     }
     if(dist < nearestDist){
       nearestDist = dist;
@@ -647,7 +647,7 @@ function updateDistances(userLat, userLng){
 
   statusBar.className = 'ok';
   statusBar.innerHTML = 'Tracking location — nearest stop: <strong>' + nearestName +
-    '</strong> (' + Math.round(nearestDist) + 'meters away)';
+    '</strong> (' + Math.round(nearestDist) + ' meters away)';
 }
 
 function startTracking(){
