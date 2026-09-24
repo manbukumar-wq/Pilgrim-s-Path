@@ -309,7 +309,7 @@ const STOPS = [
     id: 1,
     title: 'Stop 1: St. Ignatius the Pilgrim',
     lat: 38.63635179724597,
-    lng: -90.23407266076184,
+    lng: -90.237266076184,
     intro: 'St. Ignatius of Loyola (1491-1556) was the founder of the Society of Jesus, the Jesuits. He is depicted here in the center of SLU\'s main campus quad as a pilgrim in motion, continually seeking and finding God in all things.',
     soundcloudUrl: 'https://soundcloud.com/slumission/ignatius-the-pilgrim',
     radius: 50
@@ -337,7 +337,7 @@ const STOPS = [
     title: 'Stop 4: Garden of Mary, the Immaculate Conception',
     lat: 38.63509023616934,
     lng: -90.2285979004573,
-    intro: 'This image has been on campus for over 40 years, moved to its present location and re-dedicated in 2022.',
+    intro: 'This image has been on campus for over  years, moved to its present location and re-dedicated in 2022.',
     soundcloudUrl: 'https://soundcloud.com/slumission/immaculate-conception',
     radius: 50
   },
@@ -355,7 +355,7 @@ const STOPS = [
     title: 'Stop 6: St. Francis Xavier College Church',
     lat: 38.63696569287356,
     lng: -90.23311630345572,
-    intro: 'Built in 1840, College Church remains the spiritual heart of campus. In the nave, the stained glass depicts the lives of Jesuit saints; in the south transept, Jesuit professors and SLU students are portrayed. As you leave the church, take note of SLU\'s iconic fountain across the street to the east as well as the former Jesuit Hall to the north.',
+    intro: 'Built in 18, College Church remains the spiritual heart of campus. In the nave, the stained glass depicts the lives of Jesuit saints; in the south transept, Jesuit professors and SLU students are portrayed. As you leave the church, take note of SLU\'s iconic fountain across the street to the east as well as the former Jesuit Hall to the north.',
     soundcloudUrl: 'https://soundcloud.com/slumission/college-church',
     radius: 50
   },
@@ -426,7 +426,7 @@ const STOPS = [
     id: 14,
     title: 'Stop 14: Catholic Studies Center',
     lat: 38.63719352416923,
-    lng: -90.24052337702281,
+    lng: -90.252337702281,
     intro: 'Home to the department of Catholic Studies as well as the College of Philosophy & Letters, the Center\'s chapel is dedicated to St. Edmund Campion, S.J.',
     soundcloudUrl: 'https://soundcloud.com/slumission/catholic-studies-center',
     radius: 50
@@ -647,7 +647,7 @@ function updateDistances(userLat, userLng){
 
   statusBar.className = 'ok';
   statusBar.innerHTML = 'Tracking location — nearest stop: <strong>' + nearestName +
-    '</strong> (' + Math.round(nearestDist) + 'm away)';
+    '</strong> (' + Math.round(nearestDist) + 'meters away)';
 }
 
 function startTracking(){
