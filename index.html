@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pilgrim's Path — SLU Self-Guided Walking Tour</title>
+<style>
+  :root{
+    --accent:#1d6f5c;
+    --bg:#faf8f4;
+    --card-bg:#ffffff;
+    --text:#232323;
+    --muted:#6b6b6b;
+    --locked:#c7c7c7;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:Georgia, 'Times New Roman', serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.5;
+  }
+  header{
+    padding:24px 16px 16px;
+    text-align:center;
+    border-bottom:1px solid #e6e1d8;
+  }
+  header h1{margin:0 0 6px; font-size:1.6rem;}
+  header p{margin:0; color:var(--muted); font-size:0.95rem;}
+
+  #status-bar{
+    max-width:640px;
+    margin:16px auto 0;
+    padding:10px 14px;
+    background:#fff3cd;
+    border:1px solid #f0d98c;
+    border-radius:8px;
+    font-size:0.9rem;
+    text-align:center;
+  }
+  #status-bar.ok{background:#e5f3ee; border-color:#bfe3d6;}
+  #status-bar.err{background:#fde2e2; border-color:#f5b5b5;}
+
+  main{
+    max-width:640px;
+    margin:0 auto;
+    padding:16px;
+  }
+
+  .stop-card{
+    background:var(--card-bg);
+    border:1px solid #e6e1d8;
+    border-radius:12px;
+    padding:18px;
+    margin-bottom:16px;
+    position:relative;
+  }
+  .stop-card.unlocked{border-color:var(--accent);}
+  .stop-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:8px;
+    cursor:pointer;
+  }
+  .stop-number{
+    display:inline-block;
+    width:28px; height:28px;
+    line-height:28px;
+    text-align:center;
+    border-radius:50%;
+    background:var(--locked);
+    color:#fff;
+    font-size:0.85rem;
+    margin-right:8px;
+  }
+  .stop-card.unlocked .stop-number{background:var(--accent);}
+  .stop-title{font-size:1.15rem; font-weight:bold; flex:1;}
+  .distance-tag{
+    font-size:0.8rem;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .stop-body{
+    margin-top:12px;
+    display:none;
+  }
+  .stop-body.open{display:block;}
+  .stop-intro{margin:0 0 12px; font-size:0.98rem;}
+  .audio-wrap{border-radius:8px; overflow:hidden;}
+  .locked-audio{
+    padding:14px;
+    text-align:center;
+    background:#f2f0eb;
+    border:1px dashed var(--locked);
+    border-radius:8px;
+    color:var(--muted);
+    font-size:0.9rem;
+  }
+  iframe.sc-player{width:100%; height:120px; border:0;}
+
+  footer{
+    text-align:center;
+    padding:24px 16px 40px;
+    color:var(--muted);
+    font-size:0.8rem;
+  }
+
+  button.locate-btn{
+    display:block;
+    margin:10px auto 0;
+    padding:8px 16px;
+    background:var(--accent);
+    color:#fff;
+    border:0;
+    border-radius:20px;
+    font-size:0.85rem;
+    cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Pilgrim’s Path</h1>
+  <p>A self-guided walking tour of Saint Louis University’s Jesuit heritage. Follow the 19 stops below — each stop’s audio unlocks automatically once you’re near that location, or tap a stop to read the intro first.</p>
+</header>
+
+<div id="status-bar">
+  Requesting your location to unlock nearby stops…
+  <button class="locate-btn" id="retry-locate">Enable location</button>
+</div>
+
+<main id="stops-container"></main>
+
+<footer>
+  Tip: keep this page open as you walk — it checks your position automatically and unlocks each stop's audio when you arrive.
+</footer>
+
+<script>
+/* ============================================================
+   STOP DATA — pulled from the Pilgrim's Path KML export.
+   radius = how close (in meters) a visitor must be for that
+   stop's audio to unlock. 40m is a reasonable default for
+   campus buildings; tighten it (20–25m) for stops close
+   together, or loosen it (60–75m+) for open plazas.
+   ============================================================ */
+const STOPS = [
+  {
+    id: 1,
+    title: 'Stop 1: St. Ignatius the Pilgrim',
+    lat: 38.63635179724597,
+    lng: -90.23407266076184,
+    intro: 'St. Ignatius of Loyola (1491-1556) was the founder of the Society of Jesus, the Jesuits. He is depicted here in the center of SLU\'s main campus quad as a pilgrim in motion, continually seeking and finding God in all things.',
+    soundcloudUrl: 'https://soundcloud.com/slumission/ignatius-the-pilgrim',
+    radius: 40
+  },
+  {
+    id: 2,
+    title: 'Stop 2: Cardinal Ritter Hall',
+    lat: 38.63603267299245,
+    lng: -90.23270532830836,
+    intro: 'This building is named for the archbishop who desegregated St. Louis Catholic churches, schools, and hospitals in 1947.',
+    soundcloudUrl: 'https://soundcloud.com/slumission/ritter',
+    radius: 40
+  },
+  {
+    id: 3,
+    title: 'Stop 3: St. Junipero Serra, O.F.M.',
+    lat: 38.63482377339219,
+    lng: -90.23227681487901,
+    intro: 'This statue depicts the famed California missionary of the 18th century.',
+    soundcloudUrl: 'https://soundcloud.com/slumission/serra',
+    radius: 40
+  },
+  {
+    id: 4,
+    title: 'Stop 4: Garden of Mary, the Immaculate Conception',
+    lat: 38.63509023616934,
+    lng: -90.2285979004573,
+    intro: 'This image has been on campus for over 40 years, moved to its present location and re-dedicated in 2022.',
+    soundcloudUrl: 'https://soundcloud.com/slumission/immaculate-conception',
+    radius: 40
+  },
+  {
+    id: 5,
+    title: 'Stop 5: St. Louis the King',
+    lat: 38.63645239069065,
+    lng: -90.22820083176894,
+    intro: 'This statue depicts the famed namesake of the city as well as the university, Louis IX, King of France from 1226-1270, known for his commitment to justice, faith, family, and service to the poor.',
+    soundcloudUrl: 'https://soundcloud.com/slumission/stl-king',
+    radius: 40
+  },
+  {
+    id: 6,
+    title: 'Stop 6: St. Francis Xavier College Church',
+    lat: 38.63696569287356,
+    lng: -90.23311630345572,
+    intro: 'Built in 1840, College Church remains the spiritual heart of campus. In the nave, the stained glass depicts the lives of Jesuit saints; in the south transept, Jesuit professors and SLU students are portrayed. As you leave the church, take note of SLU\'s iconic fountain across the street to the east as well as the former Jesuit Hall to the north.',
+    soundcloudUrl: 'https://soundcloud.com/slumission/college-church',
+    radius: 40
+  },
+  {
+    id: 7,
+    title: 'Stop 7: Saint Louis University Museum of Art',
+    lat: 38.63793557734692,
+    lng: -90.2348031949783,
+    intro: 'On the third floor of SLUMA, a collection of artifacts of Jesuit and Catholic life in St. Louis can be found, including an image of Fr. Pierre Jean De Smet, S.J., a famed 19th century missionary to Native Americans. (Open Wednesday - Sunday, 11:00 a.m. - 4:00 p.m.)',
+    soundcloudUrl: 'https://soundcloud.com/slumission/sluma-1',
+    radius: 40
+  },
+  {
+    id: 8,
+    title: 'Stop 8: Pius Circle',
+    lat: 38.63730941542942,
+    lng: -90.2349357875152,
+    intro: 'A bronze statue of a seated Pope Pius XII graces the north entrance to SLU\'s library, named for his decision to have the Vatican archives microfilmed and held in reserve at SLU.',
+    soundcloudUrl: 'https://soundcloud.com/slumission/pius-circle',
+    radius: 40
+  },
+  {
+    id: 9,
+    title: 'Stop 9: Sunken Garden',
+    lat: 38.63730772982626,
+    lng: -90.23535097599057,
+    intro: 'In 1950, this statue of Mary was installed in the garden of what is now the Chaifetz School of Business.',
+    soundcloudUrl: 'https://soundcloud.com/slumission/sunken-garden',
+    radius: 40
+  },
+  {
+    id: 10,
+    title: 'Stop 10: Clocktower & Jonathan Smith Amphitheater',
+    lat: 38.63655299210812,
+    lng: -90.23682246239426,
+    intro: 'The clocktower has long served as a campus community space for students. In 2014, Occupy SLU led to a collaboration between the university and city in forging the Clocktower Accords.',
+    soundcloudUrl: 'https://soundcloud.com/slumission/clocktower',
+    radius: 40
+  },
+  {
+    id: 11,
+    title: 'Stop 11: Xavier Hall',
+    lat: 38.63700754359719,
+    lng: -90.23777569943363,
+    intro: 'An image of the Blessed Virgin Mary can be seen over the entryway. Xavier Hall was originally built as the girls\' high school of St. Francis Xavier College Church parish.',
+    soundcloudUrl: 'https://soundcloud.com/slumission/xavier',
+    radius: 40
+  },
+  {
+    id: 12,
+    title: 'Stop 12: Fusz Memorial',
+    lat: 38.63628352476064,
+    lng: -90.23744802765943,
+    intro: 'At the entryway is a bas relief sculpture of the life of St. Ignatius of Loyola, founder of the Jesuits.',
+    soundcloudUrl: 'https://soundcloud.com/slumission/fusz',
+    radius: 40
+  },
+  {
+    id: 13,
+    title: 'Stop 13: Museum of Contemporary and Religious Art',
+    lat: 38.63638652890575,
+    lng: -90.23786465799743,
+    intro: 'Originally the chapel of the Jesuit scholastics\' residence in the mid-1900s, MOCRA now brings an interfaith focus to its exhibits. (Open Wednesday - Sunday, 11:00 a.m. - 4:00 p.m.; extended hours most Thursdays)',
+    soundcloudUrl: 'https://soundcloud.com/slumission/mocra-1',
+    radius: 40
+  },
+  {
+    id: 14,
+    title: 'Stop 14: Catholic Studies Center',
+    lat: 38.63719352416923,
+    lng: -90.24052337702281,
+    intro: 'Home to the department of Catholic Studies as well as the College of Philosophy & Letters, the Center\'s chapel is dedicated to St. Edmund Campion, S.J.',
+    soundcloudUrl: 'https://soundcloud.com/slumission/catholic-studies-center',
+    radius: 40
+  },
+  {
+    id: 15,
+    title: 'Stop 15: Jesuit Center',
+    lat: 38.63605961876178,
+    lng: -90.2387205217459,
+    intro: 'Opened in 2022, the Jesuits who work at SLU reside here. Inside the Chapel of Our Lady, Seat of Wisdom, are found a specially commissioned image of Mary, with a mantle of "SLU blue," and a 19th century British representation of the crucified Christ. (Open weekdays, 9:00 a.m. - 5:00 p.m.)',
+    soundcloudUrl: 'https://soundcloud.com/slumission/jesuit-center',
+    radius: 40
+  },
+  {
+    id: 16,
+    title: 'Stop 16: Spring Hall',
+    lat: 38.63560203663438,
+    lng: -90.2371832038519,
+    intro: 'An abstract bronze statue of the Blessed Virgin Mary is dedicated to Mary Bruemmer, long-time friend of SLU.',
+    soundcloudUrl: 'https://soundcloud.com/slumission/spring-hall',
+    radius: 40
+  },
+  {
+    id: 17,
+    title: 'Stop 17: Center for Global Citizenship',
+    lat: 38.63633888929714,
+    lng: -90.23608335284821,
+    intro: 'Center for Global Citizenship: Built as the original university "West Pine Gym," the CGC\'s proudest honor was hosting Dr. Martin Luther King, Jr., on October 12, 1964.',
+    soundcloudUrl: 'https://soundcloud.com/slumission/cgc',
+    radius: 40
+  },
+  {
+    id: 18,
+    title: 'Stop 18: Samuel Cupples House & Garden',
+    lat: 38.63680075250846,
+    lng: -90.23576695424985,
+    intro: 'Built as a private home, Cupples House is now part of SLU\'s museums and galleries. The gardens and patio statues depict the three Jesuit "boy saints": Aloysius Gonzaga, John Berchmans, and Stanislaus Kostka.',
+    soundcloudUrl: 'https://soundcloud.com/slumission/cupples-house',
+    radius: 40
+  },
+  {
+    id: 19,
+    title: 'Stop 19: Vatican Film Library',
+    lat: 38.63641613884293,
+    lng: -90.23523945583405,
+    intro: 'Established in 1953, this collection of medieval and Renaissance studies holds over 40,000 manuscripts.',
+    soundcloudUrl: 'https://soundcloud.com/slumission/vatican-and-end',
+    radius: 40
+  }
+];
+
+/* ============================================================
+   RENDERING
+   ============================================================ */
+const container = document.getElementById('stops-container');
+const statusBar = document.getElementById('status-bar');
+const retryBtn = document.getElementById('retry-locate');
+
+function haversineMeters(lat1, lng1, lat2, lng2){
+  const R = 6371000;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat/2)**2 +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLng/2)**2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+function scPlayerUrl(trackUrl){
+  return "https://w.soundcloud.com/player/?url=" +
+    encodeURIComponent(trackUrl) +
+    "&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false";
+}
+
+function buildCard(stop){
+  const card = document.createElement('div');
+  card.className = 'stop-card';
+  card.id = 'stop-' + stop.id;
+
+  card.innerHTML = `
+    <div class="stop-header" data-toggle="${stop.id}">
+      <div><span class="stop-number">${stop.id}</span><span class="stop-title">${stop.title}</span></div>
+      <div class="distance-tag" id="distance-${stop.id}">—</div>
+    </div>
+    <div class="stop-body" id="body-${stop.id}">
+      <p class="stop-intro">${stop.intro}</p>
+      <div class="audio-wrap" id="audio-${stop.id}">
+        <div class="locked-audio" id="locked-${stop.id}">
+          🔒 Audio unlocks when you're within ${stop.radius}m of this stop.
+        </div>
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+STOPS.forEach(stop => container.appendChild(buildCard(stop)));
+
+// Toggle open/closed on tap, so visitors can read intros anytime
+container.addEventListener('click', (e) => {
+  const header = e.target.closest('.stop-header');
+  if(!header) return;
+  const id = header.getAttribute('data-toggle');
+  document.getElementById('body-' + id).classList.toggle('open');
+});
+
+/* ============================================================
+   GEOLOCATION + UNLOCK LOGIC
+   ============================================================ */
+const unlockedStops = new Set();
+
+function unlockStop(stop){
+  if(unlockedStops.has(stop.id)) return;
+  unlockedStops.add(stop.id);
+
+  const card = document.getElementById('stop-' + stop.id);
+  card.classList.add('unlocked');
+
+  const lockedDiv = document.getElementById('locked-' + stop.id);
+  if(lockedDiv){
+    const iframe = document.createElement('iframe');
+    iframe.className = 'sc-player';
+    iframe.src = scPlayerUrl(stop.soundcloudUrl);
+    iframe.allow = 'autoplay';
+    iframe.scrolling = 'no';
+    iframe.frameBorder = 'no';
+    lockedDiv.replaceWith(iframe);
+  }
+
+  // Auto-expand the card so the visitor sees the audio appear
+  document.getElementById('body-' + stop.id).classList.add('open');
+}
+
+function updateDistances(userLat, userLng){
+  let nearestName = null;
+  let nearestDist = Infinity;
+
+  STOPS.forEach(stop => {
+    const dist = haversineMeters(userLat, userLng, stop.lat, stop.lng);
+    const tag = document.getElementById('distance-' + stop.id);
+    if(tag){
+      tag.textContent = unlockedStops.has(stop.id)
+        ? '✓ here'
+        : (dist < 1000 ? Math.round(dist) + 'm away' : (dist/1000).toFixed(1) + 'km away');
+    }
+    if(dist < nearestDist){
+      nearestDist = dist;
+      nearestName = stop.title;
+    }
+    if(dist <= stop.radius){
+      unlockStop(stop);
+    }
+  });
+
+  statusBar.className = 'ok';
+  statusBar.textContent = 'Tracking your location — nearest stop: ' + nearestName +
+    ' (' + Math.round(nearestDist) + 'm)';
+}
+
+function startTracking(){
+  if(!('geolocation' in navigator)){
+    statusBar.className = 'err';
+    statusBar.textContent = 'This browser does not support location tracking. Tap each stop to read the intro and open its audio manually.';
+    return;
+  }
+  navigator.geolocation.watchPosition(
+    (pos) => updateDistances(pos.coords.latitude, pos.coords.longitude),
+    (err) => {
+      statusBar.className = 'err';
+      statusBar.textContent = 'Location access is off, so audio can\'t auto-unlock. Tap a stop to read its intro, or enable location and reload.';
+    },
+    { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
+  );
+}
+
+retryBtn.addEventListener('click', startTracking);
+startTracking();
+</script>
+
+</body>
+</html>
