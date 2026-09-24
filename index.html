@@ -8,25 +8,44 @@
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,600&family=Archivo+Narrow:wght@500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+
 <style>
   :root {
-    --slu-blue: #003da5;
-    --slu-blue-dark: #002b7a;
-    --slu-gold: #c29b38;
-    --slu-gray-bg: #f4f6f8;
-    --slu-border: #d0d7de;
-    --card-bg: #ffffff;
-    --text-main: #1c252c;
-    --text-muted: #57606a;
-    --locked: #8c959f;
+    /* ===== SLU Primary Palette ===== */
+    --slu-blue: #003DA5;        /* PMS 293C */
+    --college-church-gray: #C8C9C7; /* PMS Cool Gray 3C */
+    --iris-white: #FFFFFF;
+
+    /* ===== SLU Secondary Palette ===== */
+    --fountain-blue: #53C3EE;
+    --grand-blue: #00244D;
+    --gateway-gold: #FFC72C;
+
+    /* ===== Functional tints derived from the palette above ===== */
+    --slu-blue-dark: var(--grand-blue);
+    --bg: #F4F5F6;              /* tint of College Church Gray */
+    --card-bg: var(--iris-white);
+    --border: #DADBD9;          /* tint of College Church Gray */
+    --text-main: #1C252C;
+    --text-muted: #5B6570;
+    --locked: #ACAEAC;          /* shade of College Church Gray */
+
+    /* ===== Fonts per SLU brand guide ===== */
+    --font-headline: 'Montserrat', 'Arial Narrow', Arial, sans-serif; /* stand-in for Brandon Grotesque */
+    --font-body: 'Crimson Pro', Georgia, 'Times New Roman', serif;
+    --font-narrow: 'Archivo Narrow', 'Arial Narrow', Arial, sans-serif;
   }
 
   * { box-sizing: border-box; }
 
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--slu-gray-bg);
+    font-family: var(--font-body);
+    background: var(--bg);
     color: var(--text-main);
     line-height: 1.6;
   }
@@ -34,33 +53,37 @@
   /* SLU Header / Banner Bar */
   .slu-brand-bar {
     background: var(--slu-blue);
-    color: #ffffff;
+    color: var(--iris-white);
     padding: 12px 20px;
+    font-family: var(--font-headline);
     font-weight: 700;
-    letter-spacing: 0.5px;
-    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    font-size: 0.9rem;
     text-transform: uppercase;
-    border-bottom: 4px solid var(--slu-gold);
+    border-bottom: 4px solid var(--gateway-gold);
   }
 
   header {
-    background: #ffffff;
+    background: var(--iris-white);
     padding: 32px 20px 24px;
     text-align: center;
-    border-bottom: 1px solid var(--slu-border);
+    border-bottom: 1px solid var(--border);
   }
   header h1 {
     margin: 0 0 10px;
-    font-family: Georgia, 'Times New Roman', serif;
+    font-family: var(--font-headline);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
     font-size: 2rem;
     color: var(--slu-blue);
-    font-weight: 700;
   }
   header p {
     margin: 0 auto;
     max-width: 680px;
+    font-family: var(--font-body);
     color: var(--text-muted);
-    font-size: 0.98rem;
+    font-size: 1.02rem;
   }
 
   /* Status Bar */
@@ -68,25 +91,27 @@
     max-width: 680px;
     margin: 20px auto 0;
     padding: 14px 18px;
-    background: #fff8e6;
-    border: 1px solid #f2d184;
-    border-left: 5px solid var(--slu-gold);
+    background: #FFF6DC;
+    border: 1px solid var(--gateway-gold);
+    border-left: 5px solid var(--gateway-gold);
     border-radius: 4px;
+    font-family: var(--font-narrow);
+    font-weight: 600;
     font-size: 0.92rem;
     text-align: center;
-    color: #4a3b00;
+    color: #5C4A00;
   }
   #status-bar.ok {
-    background: #edf7ed;
-    border-color: #b7e1cd;
-    border-left-color: #2e7d32;
-    color: #1b5e20;
+    background: #E7F0FB;
+    border-color: var(--slu-blue);
+    border-left-color: var(--slu-blue);
+    color: var(--grand-blue);
   }
   #status-bar.err {
-    background: #fdeded;
-    border-color: #f5c2c7;
-    border-left-color: #d32f2f;
-    color: #5f2120;
+    background: #FBE6E6;
+    border-color: #C0392B;
+    border-left-color: #C0392B;
+    color: #7A241C;
   }
 
   main {
@@ -97,12 +122,12 @@
 
   /* Interactive Map Styling */
   #map-container {
-    background: #ffffff;
-    border: 1px solid var(--slu-border);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
     border-radius: 6px;
     padding: 8px;
     margin-bottom: 24px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 5px rgba(0,36,77,0.06);
   }
 
   #map {
@@ -115,14 +140,15 @@
   /* Custom Leaflet Map Pins */
   .custom-stop-icon {
     background: var(--locked);
-    color: #ffffff;
-    border: 2px solid #ffffff;
+    color: var(--iris-white);
+    border: 2px solid var(--iris-white);
     border-radius: 50%;
     text-align: center;
     line-height: 24px;
+    font-family: var(--font-narrow);
     font-weight: 700;
     font-size: 0.85rem;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 6px rgba(0,36,77,0.3);
     transition: background 0.3s ease;
   }
   .custom-stop-icon.unlocked {
@@ -130,25 +156,25 @@
   }
 
   .user-location-icon {
-    background: #0088ff;
-    border: 3px solid #ffffff;
+    background: var(--fountain-blue);
+    border: 3px solid var(--iris-white);
     border-radius: 50%;
-    box-shadow: 0 0 0 4px rgba(0, 136, 255, 0.4), 0 2px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 0 0 4px rgba(83,195,238,0.4), 0 2px 6px rgba(0,36,77,0.3);
   }
 
   /* Card Styling */
   .stop-card {
     background: var(--card-bg);
-    border: 1px solid var(--slu-border);
+    border: 1px solid var(--border);
     border-radius: 6px;
     padding: 20px;
     margin-bottom: 16px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 5px rgba(0,36,77,0.05);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
   .stop-card.unlocked {
     border-color: var(--slu-blue);
-    box-shadow: 0 3px 10px rgba(0, 61, 165, 0.12);
+    box-shadow: 0 3px 10px rgba(0, 61, 165, 0.14);
   }
 
   .stop-header {
@@ -158,7 +184,7 @@
     gap: 12px;
     cursor: pointer;
   }
-  
+
   .stop-header-left {
     display: flex;
     align-items: center;
@@ -175,7 +201,8 @@
     flex-shrink: 0;
     border-radius: 50%;
     background: var(--locked);
-    color: #ffffff;
+    color: var(--iris-white);
+    font-family: var(--font-narrow);
     font-weight: 700;
     font-size: 0.9rem;
   }
@@ -184,9 +211,10 @@
   }
 
   .stop-title {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 1.15rem;
+    font-family: var(--font-headline);
+    font-size: 1.1rem;
     font-weight: 700;
+    letter-spacing: 0.01em;
     color: var(--text-main);
   }
   .stop-card.unlocked .stop-title {
@@ -194,32 +222,34 @@
   }
 
   .distance-tag {
+    font-family: var(--font-narrow);
     font-size: 0.82rem;
     font-weight: 600;
     color: var(--text-muted);
-    background: #f0f3f6;
+    background: var(--bg);
     padding: 4px 10px;
     border-radius: 12px;
     white-space: nowrap;
   }
   .stop-card.unlocked .distance-tag {
-    background: #e8f0fe;
+    background: #E8F0FE;
     color: var(--slu-blue);
   }
 
   .stop-body {
     margin-top: 16px;
     padding-top: 14px;
-    border-top: 1px solid var(--slu-gray-bg);
+    border-top: 1px solid var(--bg);
     display: none;
   }
   .stop-body.open { display: block; }
 
   .stop-intro {
     margin: 0 0 14px;
-    font-size: 0.98rem;
-    color: #333333;
-    line-height: 1.6;
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    color: var(--text-main);
+    line-height: 1.65;
   }
 
   .audio-wrap {
@@ -230,10 +260,12 @@
   .locked-audio {
     padding: 16px;
     text-align: center;
-    background: #f8f9fa;
+    background: var(--bg);
     border: 1px dashed var(--locked);
     border-radius: 6px;
     color: var(--text-muted);
+    font-family: var(--font-narrow);
+    font-weight: 600;
     font-size: 0.88rem;
   }
 
@@ -246,13 +278,16 @@
   button.locate-btn {
     display: inline-block;
     margin-top: 8px;
-    padding: 6px 14px;
+    padding: 7px 16px;
     background: var(--slu-blue);
-    color: #ffffff;
+    color: var(--iris-white);
     border: 0;
     border-radius: 4px;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-family: var(--font-narrow);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.82rem;
     cursor: pointer;
     transition: background 0.2s ease;
   }
@@ -263,10 +298,11 @@
   footer {
     text-align: center;
     padding: 24px 16px 40px;
+    font-family: var(--font-narrow);
     color: var(--text-muted);
     font-size: 0.85rem;
-    border-top: 1px solid var(--slu-border);
-    background: #ffffff;
+    border-top: 1px solid var(--border);
+    background: var(--iris-white);
     margin-top: 30px;
   }
 </style>
@@ -276,8 +312,8 @@
 <div class="slu-brand-bar">Saint Louis University</div>
 
 <header>
-  <h1>Pilgrim’s Path</h1>
-  <p>A self-guided walking tour of Saint Louis University’s Jesuit heritage. Follow the 19 stops below — each stop’s audio unlocks automatically once you’re near that location, or tap a stop to read the intro first.</p>
+  <h1>Pilgrim's Path</h1>
+  <p>A self-guided walking tour of Saint Louis University's Jesuit heritage. Follow the 19 stops below — each stop's audio unlocks automatically once you're near that location, or tap a stop to read the intro first.</p>
 </header>
 
 <div id="status-bar">
