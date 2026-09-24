@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pilgrim's Path — SLU Self-Guided Walking Tour</title>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
 <style>
   :root {
     --slu-blue: #003da5;
@@ -89,6 +93,47 @@
     max-width: 680px;
     margin: 0 auto;
     padding: 20px 16px;
+  }
+
+  /* Interactive Map Styling */
+  #map-container {
+    background: #ffffff;
+    border: 1px solid var(--slu-border);
+    border-radius: 6px;
+    padding: 8px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+  }
+
+  #map {
+    height: 380px;
+    width: 100%;
+    border-radius: 4px;
+    z-index: 1;
+  }
+
+  /* Custom Leaflet Map Pins */
+  .custom-stop-icon {
+    background: var(--locked);
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 24px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    transition: background 0.3s ease;
+  }
+  .custom-stop-icon.unlocked {
+    background: var(--slu-blue);
+  }
+
+  .user-location-icon {
+    background: #0088ff;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba(0, 136, 255, 0.4), 0 2px 6px rgba(0,0,0,0.3);
   }
 
   /* Card Styling */
@@ -240,11 +285,22 @@
   <button class="locate-btn" id="retry-locate">Enable location</button>
 </div>
 
-<main id="stops-container"></main>
+<main>
+  <!-- Map Section -->
+  <div id="map-container">
+    <div id="map"></div>
+  </div>
+
+  <!-- Stops List -->
+  <div id="stops-container"></div>
+</main>
 
 <footer>
   Tip: Keep this page open as you walk — it checks your position automatically and unlocks each stop's audio when you arrive.
 </footer>
+
+<!-- Leaflet JS Library -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
 /* ============================================================
@@ -425,7 +481,48 @@ const STOPS = [
 ];
 
 /* ============================================================
-   RENDERING
+   LEAFLET MAP INITIALIZATION
+   ============================================================ */
+const map = L.map('map').setView([38.6364, -90.2350], 16);
+
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+const mapMarkers = {};
+let userMarker = null;
+
+function createStopIcon(id, isUnlocked = false) {
+  return L.divIcon({
+    className: 'custom-stop-icon-wrap',
+    html: `<div class="custom-stop-icon ${isUnlocked ? 'unlocked' : ''}" id="map-pin-${id}">${id}</div>`,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14]
+  });
+}
+
+// Add markers for all stops
+STOPS.forEach(stop => {
+  const marker = L.marker([stop.lat, stop.lng], {
+    icon: createStopIcon(stop.id, false)
+  }).addTo(map);
+
+  marker.bindPopup(`<strong>${stop.title}</strong>`);
+
+  // Scroll to and open card when map marker is clicked
+  marker.on('click', () => {
+    const cardBody = document.getElementById('body-' + stop.id);
+    if(cardBody) cardBody.classList.add('open');
+    const card = document.getElementById('stop-' + stop.id);
+    if(card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  mapMarkers[stop.id] = marker;
+});
+
+/* ============================================================
+   RENDERING STOPS LIST
    ============================================================ */
 const container = document.getElementById('stops-container');
 const statusBar = document.getElementById('status-bar');
@@ -492,6 +589,7 @@ function unlockStop(stop){
   if(unlockedStops.has(stop.id)) return;
   unlockedStops.add(stop.id);
 
+  // Update Card UI
   const card = document.getElementById('stop-' + stop.id);
   card.classList.add('unlocked');
 
@@ -507,9 +605,28 @@ function unlockStop(stop){
   }
 
   document.getElementById('body-' + stop.id).classList.add('open');
+
+  // Update Map Pin UI
+  const pin = document.getElementById('map-pin-' + stop.id);
+  if(pin) pin.classList.add('unlocked');
 }
 
 function updateDistances(userLat, userLng){
+  // Update or add user marker on map
+  const userIcon = L.divIcon({
+    className: 'user-location-icon-wrap',
+    html: `<div class="user-location-icon"></div>`,
+    iconSize: [18, 18],
+    iconAnchor: [9, 9]
+  });
+
+  if (!userMarker) {
+    userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(map);
+    userMarker.bindPopup('<strong>Your Location</strong>');
+  } else {
+    userMarker.setLatLng([userLat, userLng]);
+  }
+
   let nearestName = null;
   let nearestDist = Infinity;
 
