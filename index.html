@@ -5,122 +5,230 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pilgrim's Path — SLU Self-Guided Walking Tour</title>
 <style>
-  :root{
-    --accent:#1d6f5c;
-    --bg:#faf8f4;
-    --card-bg:#ffffff;
-    --text:#232323;
-    --muted:#6b6b6b;
-    --locked:#c7c7c7;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    font-family:Georgia, 'Times New Roman', serif;
-    background:var(--bg);
-    color:var(--text);
-    line-height:1.5;
-  }
-  header{
-    padding:24px 16px 16px;
-    text-align:center;
-    border-bottom:1px solid #e6e1d8;
-  }
-  header h1{margin:0 0 6px; font-size:1.6rem;}
-  header p{margin:0; color:var(--muted); font-size:0.95rem;}
-
-  #status-bar{
-    max-width:640px;
-    margin:16px auto 0;
-    padding:10px 14px;
-    background:#fff3cd;
-    border:1px solid #f0d98c;
-    border-radius:8px;
-    font-size:0.9rem;
-    text-align:center;
-  }
-  #status-bar.ok{background:#e5f3ee; border-color:#bfe3d6;}
-  #status-bar.err{background:#fde2e2; border-color:#f5b5b5;}
-
-  main{
-    max-width:640px;
-    margin:0 auto;
-    padding:16px;
+  :root {
+    --slu-blue: #003da5;
+    --slu-blue-dark: #002b7a;
+    --slu-gold: #c29b38;
+    --slu-gray-bg: #f4f6f8;
+    --slu-border: #d0d7de;
+    --card-bg: #ffffff;
+    --text-main: #1c252c;
+    --text-muted: #57606a;
+    --locked: #8c959f;
   }
 
-  .stop-card{
-    background:var(--card-bg);
-    border:1px solid #e6e1d8;
-    border-radius:12px;
-    padding:18px;
-    margin-bottom:16px;
-    position:relative;
-  }
-  .stop-card.unlocked{border-color:var(--accent);}
-  .stop-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:baseline;
-    gap:8px;
-    cursor:pointer;
-  }
-  .stop-number{
-    display:inline-block;
-    width:28px; height:28px;
-    line-height:28px;
-    text-align:center;
-    border-radius:50%;
-    background:var(--locked);
-    color:#fff;
-    font-size:0.85rem;
-    margin-right:8px;
-  }
-  .stop-card.unlocked .stop-number{background:var(--accent);}
-  .stop-title{font-size:1.15rem; font-weight:bold; flex:1;}
-  .distance-tag{
-    font-size:0.8rem;
-    color:var(--muted);
-    white-space:nowrap;
-  }
-  .stop-body{
-    margin-top:12px;
-    display:none;
-  }
-  .stop-body.open{display:block;}
-  .stop-intro{margin:0 0 12px; font-size:0.98rem;}
-  .audio-wrap{border-radius:8px; overflow:hidden;}
-  .locked-audio{
-    padding:14px;
-    text-align:center;
-    background:#f2f0eb;
-    border:1px dashed var(--locked);
-    border-radius:8px;
-    color:var(--muted);
-    font-size:0.9rem;
-  }
-  iframe.sc-player{width:100%; height:120px; border:0;}
+  * { box-sizing: border-box; }
 
-  footer{
-    text-align:center;
-    padding:24px 16px 40px;
-    color:var(--muted);
-    font-size:0.8rem;
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--slu-gray-bg);
+    color: var(--text-main);
+    line-height: 1.6;
   }
 
-  button.locate-btn{
-    display:block;
-    margin:10px auto 0;
-    padding:8px 16px;
-    background:var(--accent);
-    color:#fff;
-    border:0;
-    border-radius:20px;
-    font-size:0.85rem;
-    cursor:pointer;
+  /* SLU Header / Banner Bar */
+  .slu-brand-bar {
+    background: var(--slu-blue);
+    color: #ffffff;
+    padding: 12px 20px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    border-bottom: 4px solid var(--slu-gold);
+  }
+
+  header {
+    background: #ffffff;
+    padding: 32px 20px 24px;
+    text-align: center;
+    border-bottom: 1px solid var(--slu-border);
+  }
+  header h1 {
+    margin: 0 0 10px;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 2rem;
+    color: var(--slu-blue);
+    font-weight: 700;
+  }
+  header p {
+    margin: 0 auto;
+    max-width: 680px;
+    color: var(--text-muted);
+    font-size: 0.98rem;
+  }
+
+  /* Status Bar */
+  #status-bar {
+    max-width: 680px;
+    margin: 20px auto 0;
+    padding: 14px 18px;
+    background: #fff8e6;
+    border: 1px solid #f2d184;
+    border-left: 5px solid var(--slu-gold);
+    border-radius: 4px;
+    font-size: 0.92rem;
+    text-align: center;
+    color: #4a3b00;
+  }
+  #status-bar.ok {
+    background: #edf7ed;
+    border-color: #b7e1cd;
+    border-left-color: #2e7d32;
+    color: #1b5e20;
+  }
+  #status-bar.err {
+    background: #fdeded;
+    border-color: #f5c2c7;
+    border-left-color: #d32f2f;
+    color: #5f2120;
+  }
+
+  main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 20px 16px;
+  }
+
+  /* Card Styling */
+  .stop-card {
+    background: var(--card-bg);
+    border: 1px solid var(--slu-border);
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .stop-card.unlocked {
+    border-color: var(--slu-blue);
+    box-shadow: 0 3px 10px rgba(0, 61, 165, 0.12);
+  }
+
+  .stop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+  
+  .stop-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+  }
+
+  .stop-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--locked);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .stop-card.unlocked .stop-number {
+    background: var(--slu-blue);
+  }
+
+  .stop-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+  .stop-card.unlocked .stop-title {
+    color: var(--slu-blue);
+  }
+
+  .distance-tag {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: #f0f3f6;
+    padding: 4px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+  .stop-card.unlocked .distance-tag {
+    background: #e8f0fe;
+    color: var(--slu-blue);
+  }
+
+  .stop-body {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--slu-gray-bg);
+    display: none;
+  }
+  .stop-body.open { display: block; }
+
+  .stop-intro {
+    margin: 0 0 14px;
+    font-size: 0.98rem;
+    color: #333333;
+    line-height: 1.6;
+  }
+
+  .audio-wrap {
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .locked-audio {
+    padding: 16px;
+    text-align: center;
+    background: #f8f9fa;
+    border: 1px dashed var(--locked);
+    border-radius: 6px;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+  }
+
+  iframe.sc-player {
+    width: 100%;
+    height: 120px;
+    border: 0;
+  }
+
+  button.locate-btn {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 6px 14px;
+    background: var(--slu-blue);
+    color: #ffffff;
+    border: 0;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  button.locate-btn:hover {
+    background: var(--slu-blue-dark);
+  }
+
+  footer {
+    text-align: center;
+    padding: 24px 16px 40px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--slu-border);
+    background: #ffffff;
+    margin-top: 30px;
   }
 </style>
 </head>
 <body>
+
+<div class="slu-brand-bar">Saint Louis University</div>
 
 <header>
   <h1>Pilgrim’s Path</h1>
@@ -128,23 +236,19 @@
 </header>
 
 <div id="status-bar">
-  Requesting your location to unlock nearby stops…
+  Requesting your location to unlock nearby stops…<br>
   <button class="locate-btn" id="retry-locate">Enable location</button>
 </div>
 
 <main id="stops-container"></main>
 
 <footer>
-  Tip: keep this page open as you walk — it checks your position automatically and unlocks each stop's audio when you arrive.
+  Tip: Keep this page open as you walk — it checks your position automatically and unlocks each stop's audio when you arrive.
 </footer>
 
 <script>
 /* ============================================================
    STOP DATA — pulled from the Pilgrim's Path KML export.
-   radius = how close (in meters) a visitor must be for that
-   stop's audio to unlock. 40m is a reasonable default for
-   campus buildings; tighten it (20–25m) for stops close
-   together, or loosen it (60–75m+) for open plazas.
    ============================================================ */
 const STOPS = [
   {
@@ -352,7 +456,10 @@ function buildCard(stop){
 
   card.innerHTML = `
     <div class="stop-header" data-toggle="${stop.id}">
-      <div><span class="stop-number">${stop.id}</span><span class="stop-title">${stop.title}</span></div>
+      <div class="stop-header-left">
+        <span class="stop-number">${stop.id}</span>
+        <span class="stop-title">${stop.title}</span>
+      </div>
       <div class="distance-tag" id="distance-${stop.id}">—</div>
     </div>
     <div class="stop-body" id="body-${stop.id}">
@@ -369,7 +476,6 @@ function buildCard(stop){
 
 STOPS.forEach(stop => container.appendChild(buildCard(stop)));
 
-// Toggle open/closed on tap, so visitors can read intros anytime
 container.addEventListener('click', (e) => {
   const header = e.target.closest('.stop-header');
   if(!header) return;
@@ -400,7 +506,6 @@ function unlockStop(stop){
     lockedDiv.replaceWith(iframe);
   }
 
-  // Auto-expand the card so the visitor sees the audio appear
   document.getElementById('body-' + stop.id).classList.add('open');
 }
 
@@ -413,7 +518,7 @@ function updateDistances(userLat, userLng){
     const tag = document.getElementById('distance-' + stop.id);
     if(tag){
       tag.textContent = unlockedStops.has(stop.id)
-        ? '✓ here'
+        ? '✓ Unlocked'
         : (dist < 1000 ? Math.round(dist) + 'm away' : (dist/1000).toFixed(1) + 'km away');
     }
     if(dist < nearestDist){
@@ -426,8 +531,8 @@ function updateDistances(userLat, userLng){
   });
 
   statusBar.className = 'ok';
-  statusBar.textContent = 'Tracking your location — nearest stop: ' + nearestName +
-    ' (' + Math.round(nearestDist) + 'm)';
+  statusBar.innerHTML = 'Tracking location — nearest stop: <strong>' + nearestName +
+    '</strong> (' + Math.round(nearestDist) + 'm away)';
 }
 
 function startTracking(){
@@ -440,7 +545,7 @@ function startTracking(){
     (pos) => updateDistances(pos.coords.latitude, pos.coords.longitude),
     (err) => {
       statusBar.className = 'err';
-      statusBar.textContent = 'Location access is off, so audio can\'t auto-unlock. Tap a stop to read its intro, or enable location and reload.';
+      statusBar.innerHTML = 'Location access is off, so audio can\'t auto-unlock. Tap a stop to read its intro, or enable location and retry.<br><button class="locate-btn" onclick="startTracking()">Retry Location</button>';
     },
     { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
   );
